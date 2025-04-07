@@ -9,7 +9,8 @@ controller = Controller(
   routers=["mf"],
   strong_model="/home/da02/models/Llama-3.1-8B-Instruct",
   weak_model="/home/da02/models/Llama-3.2-1B-Instruct",
-  api_base='local'
+  api_base='local',
+  only_routing=True
 )
  
 all_data = pd.read_csv('./routellm/evals/gsm8k/gsm8k_responses.csv')

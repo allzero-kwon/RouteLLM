@@ -100,6 +100,7 @@ class Controller:
         api_base: Optional[str] = None,
         api_key: Optional[str] = None,
         progress_bar: bool = False,
+        only_routing:bool = True
     ):
         self.model_pair = ModelPair(strong=strong_model, weak=weak_model)
         self.routers = {}
@@ -108,7 +109,7 @@ class Controller:
         self.model_counts = defaultdict(lambda: defaultdict(int))
         self.progress_bar = progress_bar
         
-        if api_base == "local":
+        if api_base == "local" and only_routing == False:
             print(f'Load weak : {weak_model}')
             self._weak_tokenizer = AutoTokenizer.from_pretrained(weak_model, trust_remote_code=True)
             self._weak_model = AutoModelForCausalLM.from_pretrained(
