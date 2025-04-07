@@ -121,7 +121,7 @@ async def create_chat_completion(request: ChatCompletionRequest):
     # The router type and threshold is used for routing that specific request.
     logging.info(f"Received request: {request}")
     try:
-        res = await CONTROLLER.acompletion(
+        res = CONTROLLER.completion(
             **request.model_dump(exclude_none=True),
         )
     except RoutingError as e:
@@ -137,6 +137,8 @@ async def create_chat_completion(request: ChatCompletionRequest):
             content=stream_response(res), media_type="text/event-stream"
         )
     else:
+        if isinstance(res, dict):
+            return JSONResponse(content=res)
         return JSONResponse(content=res.model_dump())
 
 

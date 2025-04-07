@@ -142,7 +142,8 @@ def pretty_print_results(threshold, accuracy, model_counts, total):
 
 if __name__ == "__main__":
     import argparse
-
+    import os 
+    
     parser = argparse.ArgumentParser(
         description="Evaluate routers on various benchmarks."
     )
@@ -184,7 +185,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--weak-model",
         type=str,
-        default="mistralai/Mixtral-8x7B-Instruct-v0.1",
+        default="ollama_chat/llama3",
     )
     parser.add_argument("--config", type=str, default=None)
     parser.add_argument("--num-results", type=int, default=10)
