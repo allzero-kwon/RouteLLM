@@ -6,7 +6,7 @@ import pandas as pd
 from collections import defaultdict
 
 controller = Controller(
-  routers=["mf"],
+  routers=["mf", "sw_ranking"],
   strong_model="/home/da02/models/Llama-3.1-8B-Instruct",
   weak_model="/home/da02/models/Llama-3.2-1B-Instruct",
   api_base='local',
@@ -23,7 +23,7 @@ count = defaultdict(int)
 for prompt in all_data['prompt']:
         
     routed_model = controller.chat.completions.create(
-        model="router-mf-0.31",
+        model="router-mf-0.1159",
         messages=[
             {"role": "user", "content": prompt}
         ],
