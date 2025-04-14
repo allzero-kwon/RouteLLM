@@ -57,8 +57,9 @@ class CausalLLMRouter(Router):
         special_tokens=["[[1]]", "[[2]]", "[[3]]", "[[4]]", "[[5]]"],
         num_outputs=5,
         model_type="causal",
-        model_id="meta-llama/Meta-Llama-3-8B",
+        model_id="/home/da02/models/Llama-3.1-8B-Instruct/",
         flash_attention_2=False,
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     ):
         model_config = RouterModelConfig(
             model_id=model_id,
@@ -76,6 +77,7 @@ class CausalLLMRouter(Router):
             prompt_field="messages",
             additional_fields=[],
             use_last_turn=True,
+            device=device,
         )
         system_message = hf_hub_download(
             repo_id=checkpoint_path, filename="system_ft_v5.txt"
@@ -108,10 +110,11 @@ class BERTRouter(Router):
         self,
         checkpoint_path,
         num_labels=3,
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     ):
         self.model = AutoModelForSequenceClassification.from_pretrained(
             checkpoint_path, num_labels=num_labels
-        )
+        ).to(device)
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
 
     def calculate_strong_win_rate(self, prompt):
@@ -119,8 +122,11 @@ class BERTRouter(Router):
             prompt, return_tensors="pt", padding=True, truncation=True
         )
         with torch.no_grad():
+            inputs = {
+                k: v.to("cuda") for k, v in inputs.items() if torch.is_tensor(v)
+            }
             outputs = self.model(**inputs)
-            logits = outputs.logits.numpy()[0]
+            logits = outputs.logits.cpu().numpy()[0]
 
         exp_scores = np.exp(logits - np.max(logits))
         softmax_scores = exp_scores / np.sum(exp_scores)

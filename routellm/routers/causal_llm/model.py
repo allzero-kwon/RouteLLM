@@ -21,6 +21,7 @@ class CausalLLMClassifier:
         use_last_turn: bool = False,
         additional_fields: List[str] = list(["label", "pidx"]),
         max_new_tokens: int = 6,
+        device: str = "cuda",
     ):
         """
         This model is trained to predict a score [1, 5] for a given user query.
@@ -41,7 +42,7 @@ class CausalLLMClassifier:
             assert f"[[{i}]]" in config.special_tokens
 
         model = get_model(config=config, model_ckpt=ckpt_local_path)
-        self.model = model.to("cuda").eval()
+        self.model = model.to(device).eval()
 
         self.prompt_format = prompt_format
         self.use_last_turn = use_last_turn

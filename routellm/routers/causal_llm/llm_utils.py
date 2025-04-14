@@ -20,13 +20,16 @@ def load_model_config(yaml_path: str):
 
 
 def load_prompt_format(model_id):
-    prompt_format_dict = PROMPT_FORMAT_CONFIGS[model_id]
+    if "llama" not in model_id.lower() :
+        raise ValueError(f'Only llama model is supported, but got {model_id}')
+    
+    prompt_format_dict = PROMPT_FORMAT_CONFIGS["llama8b"]
     return PromptFormat(**prompt_format_dict, is_generation=True)
 
 
 def get_model(config: RouterModelConfig, model_ckpt: str, pad_token_id: int = 2):
     if config.model_type == ModelTypeEnum.CAUSAL:
-        return AutoModelForCausalLM.from_pretrained(
+        model = AutoModelForCausalLM.from_pretrained(
             model_ckpt,
             trust_remote_code=True,
             torch_dtype=torch.bfloat16,

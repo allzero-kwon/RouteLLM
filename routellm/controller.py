@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import Any, Optional
+from more_itertools import only
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import requests
 import pandas as pd
@@ -109,8 +110,7 @@ class Controller:
         self.model_counts = defaultdict(lambda: defaultdict(int))
         self.progress_bar = progress_bar
         
-        if api_base == "local" and only_routing == False:
-            print(f'Load weak : {weak_model}')
+        if only_routing == False:
             self._weak_tokenizer = AutoTokenizer.from_pretrained(weak_model, trust_remote_code=True)
             self._weak_model = AutoModelForCausalLM.from_pretrained(
                 weak_model,
@@ -119,15 +119,18 @@ class Controller:
                 trust_remote_code=True
             )
             self._weak_model.eval()
-            print(f'Load strong : {strong_model}')
-                        
+            print(f'Load weak : {weak_model} | {self._weak_model.device}')
+            # import time
+            # time.sleep(10)
             self._strong_tokenizer = AutoTokenizer.from_pretrained(strong_model, trust_remote_code=True)
             self._strong_model = AutoModelForCausalLM.from_pretrained(
                 strong_model,
-                device_map="auto",
+                device_map="auto", # GPU 1
                 torch_dtype=torch.float16,
                 trust_remote_code=True
             )
+            print(f'Load strong : {strong_model} | {self._strong_model.device}')
+
             self._strong_model.eval()
             
             
@@ -204,10 +207,10 @@ class Controller:
         else:
             return prompts.parallel_apply(router_instance.calculate_strong_win_rate)
 
-    def route(self, prompt: str, router: str, threshold: float):
+    def route(self, model:str, prompt: str):
+        router, threshold = self._parse_model_name(model)
         self._validate_router_threshold(router, threshold)
-
-        return self.routers[router].route(prompt, threshold, self.model_pair)
+        return self.routers[router].route(prompt, threshold, self.model_pair) 
 
     # Matches OpenAI's Chat Completions interface, but also supports optional router and threshold args
     # If model name is present, attempt to parse router and threshold using it, otherwise, use the router and threshold args
@@ -225,7 +228,6 @@ class Controller:
         kwargs["model"] = self._get_routed_model_for_completion(
             kwargs["messages"], router, threshold
         )
-        
         if kwargs['only_routing'] == True :
             return kwargs["model"]
                 

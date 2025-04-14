@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel, ConfigDict
 
 PROMPT_FORMAT_CONFIGS = {
-    "meta-llama/Meta-Llama-3-8B": {
+    "llama8b": {
         "system": "<|start_header_id|>system<|end_header_id|>\n\n{instruction}<|eot_id|>",
         "assistant": "<|start_header_id|>assistant<|end_header_id|>\n\n{instruction}<|eot_id|>",
         "trailing_assistant": "",
