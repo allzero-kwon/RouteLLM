@@ -238,6 +238,8 @@ class MatrixFactorizationRouter(Router):
             use_proj=use_proj,
         )
         self.model = self.model.eval().to(device)
+        strong_model="gpt-4-1106-preview"
+        weak_model="mixtral-8x7b-instruct-v0.1"
         self.strong_model_id = MODEL_IDS[strong_model]
         self.weak_model_id = MODEL_IDS[weak_model]
 
